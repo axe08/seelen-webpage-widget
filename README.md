@@ -100,3 +100,7 @@ src/loader.ts      reachability probe + auto reload timer (unit tested)
 scripts/build.mjs  esbuild bundle to dist/
 scripts/slu.mjs    resolves the absolute dist path and invokes the Seelen CLI
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).
