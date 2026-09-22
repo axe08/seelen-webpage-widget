@@ -1,0 +1,102 @@
+id: "@axe08/webpage"
+icon: PiGlobeHemisphereWest
+metadata:
+  displayName: Web Page
+  description: Shows a live web page on your desktop, such as a homelab dashboard.
+  tags: [web, dashboard, iframe, homelab]
+preset: Desktop
+instances: Multiple
+lazy: false
+html: !include index.html
+js: !include index.js
+css: !include index.css
+settings:
+  - type: text
+    key: url
+    label: Page URL
+    description: Any http or https address that allows being embedded. Each instance can have its own URL; a new instance starts with the default instance's URL.
+    defaultValue: "http://localhost:8080"
+
+  - group:
+      label: View
+      items:
+        - type: range
+          key: zoom
+          label: Zoom (%)
+          description: Used only when Region width is 0.
+          min: 25
+          max: 200
+          step: 5
+          defaultValue: 100
+
+        - type: switch
+          key: hideScrollbar
+          label: Hide page scrollbar
+          description: Clips the page's own scrollbar. Wheel scrolling still works.
+          defaultValue: true
+
+  - group:
+      label: Region (page pixels)
+      items:
+        - type: number
+          key: regionLeft
+          label: Left
+          description: Page pixels hidden on the left.
+          min: 0
+          defaultValue: 0
+
+        - type: number
+          key: regionTop
+          label: Top
+          description: Page pixels hidden at the top.
+          min: 0
+          defaultValue: 0
+
+        - type: number
+          key: regionWidth
+          label: Width
+          description: 0 = to the edge. Above 0, this width is scaled to fill the widget and Zoom is ignored.
+          min: 0
+          defaultValue: 0
+
+        - type: number
+          key: regionHeight
+          label: Height
+          description: 0 = follow the window. Above 0, the widget height is set so this region fits exactly.
+          min: 0
+          defaultValue: 0
+
+  - group:
+      label: Behaviour
+      items:
+        - type: number
+          key: reloadMinutes
+          label: Auto reload every (minutes)
+          description: 0 disables automatic reload.
+          min: 0
+          max: 1440
+          defaultValue: 0
+
+        - type: select
+          key: barMode
+          label: Drag bar
+          options:
+            - label: Show on hover
+              value: hover
+            - label: Always visible
+              value: always
+          defaultValue: hover
+
+        - type: number
+          key: barHideDelayMs
+          label: Drag bar hide delay (ms)
+          description: How long after the mouse leaves before the bar hides.
+          min: 0
+          max: 5000
+          defaultValue: 600
+
+        - type: color
+          key: barColor
+          label: Drag bar colour
+          allowAlpha: true
+          defaultValue: "#00000099"

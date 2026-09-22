@@ -1,0 +1,21 @@
+{
+  "name": "seelen-webpage-widget",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Seelen UI widget that shows a live web page on the desktop",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit",
+    "load": "npm run build && node scripts/slu.mjs load",
+    "bundle": "npm run build && node scripts/slu.mjs bundle"
+  },
+  "devDependencies": {
+    "@seelen-ui/lib": "2.8.4",
+    "@tauri-apps/api": "^2.11.1",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.6.0"
+  }
+}
