@@ -3,7 +3,8 @@ icon: PiGlobeHemisphereWest
 metadata:
   displayName: Web Page
   description: Shows a live web page on your desktop, such as a homelab dashboard.
-  tags: [web, dashboard, iframe, homelab]
+  tags: [web, dashboard, iframe, homelab, camera, glance, home-assistant]
+  appTargetVersion: [2, 8, 6]
 preset: Desktop
 instances: Multiple
 lazy: false
