@@ -73,12 +73,80 @@ instance — deleting it only makes it reappear on the next launch. New
 instances start with the default instance's URL; once you edit the default
 instance, its own edits live with it.
 
-## Pages that refuse to embed
+## Embedding real pages
 
-If the page shows a browser refusal message, the site sends
-`X-Frame-Options` or a `frame-ancestors` policy. Glance does not. Some apps
-(qBittorrent, Portainer, Uptime Kuma admin) do. Put such apps behind a reverse
-proxy that strips those headers, or embed a page that permits framing.
+The widget is a plain iframe, so it can show anything a browser can show in a
+frame. Three things decide whether a page works: whether the page allows
+framing, whether it is reachable from your PC, and whether it needs a video
+player. This section covers the cases met while setting it up for a homelab.
+
+### Pages that refuse to embed
+
+If the frame shows "refused to connect", the site sends `X-Frame-Options` or
+a `frame-ancestors` policy. Nothing in the widget can override that; the
+refusal happens in the browser engine before any widget code runs. To check
+a page from a shell:
+
+```bash
+curl -sI http://host:port/ | grep -iE "x-frame-options|content-security-policy"
+```
+
+No output means it embeds. Known to embed: Glance. Known to refuse: Uptime
+Kuma (including status pages), qBittorrent, Portainer. Two fixes:
+
+- **Strip the header with a reverse proxy** and point the widget at the proxy.
+  Caddy:
+  ```
+  kuma-embed.example {
+    reverse_proxy 192.168.1.10:3001
+    header -X-Frame-Options
+  }
+  ```
+  nginx: `proxy_hide_header X-Frame-Options;` in the location block.
+- **Embed a page that shows the same data.** Glance, for example, has
+  widgets that pull from Uptime Kuma, and a Glance page embeds fine.
+
+### Home Assistant
+
+Home Assistant sends `X-Frame-Options: SAMEORIGIN` by default and has a
+switch to turn it off, but since Home Assistant 2026 the `http:` section of
+`configuration.yaml` is **ignored**: it is migrated once into an internal
+store, after which YAML edits do nothing and a Repairs entry says so. Change
+the setting through the store instead. Either use Settings → System →
+Network in the HA UI, or send the two websocket commands the UI uses:
+
+1. `http/config` returns the current `stable` config.
+2. `http/config/configure` with `{"config": {...stable, "use_x_frame_options": false}}`
+   stages it and restarts Home Assistant.
+3. `http/config/promote` within five minutes of the restart, or Home
+   Assistant reverts to the previous config and restarts again.
+
+Verify with the curl line above. You log in once inside the widget; the
+session persists because the Seelen web view keeps its own cookie store.
+
+### Camera streams
+
+Browsers cannot play RTSP, so the widget cannot take an `rtsp://` URL.
+[go2rtc](https://github.com/AlexxIT/go2rtc) converts RTSP to WebRTC or MSE
+and ships a player page that embeds cleanly. Point the widget at the
+**player**, not the links page:
+
+```
+http://go2rtc-host:1984/stream.html?src=cam1
+```
+
+The links page lists raw `rtsp://` URLs, and clicking one inside a frame
+produces "refused to connect". The widget grants `autoplay`, `fullscreen`
+and `picture-in-picture` to the frame, so the stream starts without a click.
+If the player shows a black frame with a mode selector, switch it to MSE;
+WebRTC needs UDP between your PC and the go2rtc host.
+
+Two go2rtc notes from experience: an error printed inside the player such as
+`dial tcp ...:554: connection refused` or `wrong user/pass` comes from go2rtc
+talking to the camera, not from the widget, so fix the source URL in
+`go2rtc.yaml`. And go2rtc's API on port 1984 returns each stream's source
+URL, credentials included, to anyone who can reach it; set `api: username`
+and `password` in `go2rtc.yaml` if that port is exposed beyond your PC.
 
 ## Known issues
 
